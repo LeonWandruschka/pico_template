@@ -9,7 +9,7 @@ set(PICO_SDK_FETCH_FROM_GIT on)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/pico_sdk_import.cmake)
 
 # Set Project name to your liking. Leave LANGUAGES as is.
-project(Project_Name LANGUAGES C CXX ASM)
+project(Pico LANGUAGES C CXX ASM)
 
 # Create compile_commands.json for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -21,6 +21,13 @@ set(SOURCE_FILES
 
 )
 
+# Hardware libraries
+set(HARDWARE_LIBS
+        # Add necessary hardware libraries
+        pico_stdlib
+        
+)
+
 # Detect ARM GCC system root
 execute_process(
     COMMAND arm-none-eabi-gcc -print-sysroot
@@ -29,11 +36,8 @@ execute_process(
 )
 message(STATUS "ARM GCC sysroot: ${ARM_GCC_SYSROOT}")
 
-
-
 # Set build type
 set(CMAKE_BUILD_TYPE Release)
-
 
 # Initialize pico-sdk
 pico_sdk_init()
@@ -57,14 +61,10 @@ pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link pico stdlib
-target_link_libraries(${PROJECT_NAME} pico_stdlib)
+target_link_libraries(${PROJECT_NAME} ${HARDWARE_LIBS})
 
-
+# Add include path
 target_compile_options(${PROJECT_NAME} PRIVATE -I${ARM_GCC_SYSROOT}/include)
-
 
 # Testing functions using CMake
 include(CTest)
-
-
-
