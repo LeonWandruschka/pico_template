@@ -18,23 +18,28 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SOURCE_FILES
   # Place your source files here:
   main.c
-
 )
 
 # Hardware libraries
 set(HARDWARE_LIBS
-        # Add necessary hardware libraries
-        pico_stdlib
-        
+    pico_stdlib
 )
 
-# Detect ARM GCC system root
-execute_process(
-    COMMAND arm-none-eabi-gcc -print-sysroot
-    OUTPUT_VARIABLE ARM_GCC_SYSROOT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-message(STATUS "ARM GCC sysroot: ${ARM_GCC_SYSROOT}")
+message(STATUS "Host System Name: ${CMAKE_HOST_SYSTEM_NAME}")
+
+# Detect ARM GCC system root differently based on OS
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    # On Linux, set ARM_GCC_SYSROOT manually
+    set(ARM_GCC_SYSROOT "/usr/lib/arm-none-eabi")
+else()
+    # On macOS or Windows, detect sysroot automatically
+    execute_process(
+        COMMAND arm-none-eabi-gcc -print-sysroot
+        OUTPUT_VARIABLE ARM_GCC_SYSROOT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+message(STATUS "Detected ARM GCC sysroot: ${ARM_GCC_SYSROOT}")
 
 # Set build type
 set(CMAKE_BUILD_TYPE Release)
@@ -51,9 +56,9 @@ list(TRANSFORM SOURCE_FILES PREPEND ${SOURCE_PATH}/)
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Include path
+# Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-#include_directories(${ARM_GCC_SYSROOT}/include)
+include_directories(${ARM_GCC_SYSROOT}/include)
 
 # Set printf output
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
